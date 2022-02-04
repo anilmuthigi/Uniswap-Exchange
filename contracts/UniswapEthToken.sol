@@ -64,8 +64,59 @@ contract UniswapEthToken {
         return totalContractBalance;
     }
     
+    function convertEthToToken(
+        uint Amount, 
+        address token
+        ) public payable 
+        {
+            uint deadline = block.timestamp + 15;
+            uniswapcontract.swapETHForExactTokens{ value: msg.value }(Amount, getPathForETHtoToken(token), address(this), deadline);
 
-    receive() external payable{}
+            // refund leftover ETH to the user
+            (bool success,) = msg.sender.call{ value: address(this).balance }("");
+            require(success, "refund failed");
+        }
+  
+    function convertTokensToEth(
+        address token1,
+        address token2,
+        uint amountIn,
+        uint amountOutMin,
+        uint deadline
+    ) external
+    {
+        IERC20(token1).transferFrom(msg.sender,address(this),amountIn);
+        IERC20(token1).approve(address(uniswap),amountIn);
+        uniswapcontract.swapExactTokensForETH(
+            amountIn,
+            amountOutMin,
+            getPathForTokentoToken(token1,token2),
+            msg.sender,
+            deadline
+        );
+        
+    }
+
+
+    function convertTokensToTokens(
+        address token,
+        uint amountIn,
+        uint amountOutMin,
+        uint deadline
+    ) external
+    {
+        IERC20(token).transferFrom(msg.sender,address(this),amountIn);
+        IERC20(token).approve(address(uniswap),amountIn);
+        uniswapcontract.swapExactTokensForTokens(
+            amountIn,
+            amountOutMin,
+            getPathForTokentoEth(token),
+            msg.sender,
+            deadline
+        );
+        
+    }
+
 
     function addMoneyToContract() public payable {
         totalContractBalance += msg.value;
@@ -96,10 +147,18 @@ contract UniswapEthToken {
         return path;
    }
    
-   function getEstimatedETHforDAI(uint daiAmount) public view returns (uint[] memory) {       
-        return UniswapContract.getAmountsIn(daiAmount, getPathForEthtoToken(0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa));
+
+
+    function getEstimatedETHforToken(uint Amount, address token) public view returns (uint[] memory) {       
+        return UniswapContract.getAmountsIn(Amount, getPathForEthtoToken(token));
+    }
+
+    function getEstimatedTokenforEth(uint Amount, address token) public view returns (uint[] memory) {       
+        return UniswapContract.getAmountsIn(Amount, getPathForTokentoEth(token));
     }
 
 
+
+    receive() external payable{}
 
 }

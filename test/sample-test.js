@@ -7,8 +7,12 @@ describe("UniswapEthToken", function () {
     const greeter = await Greeter.deploy();
     await greeter.deployed();
 
-    await greeter.getEstimatedETHforDAI(2673).to.equal(1);
+    //const requiredEth = (await greeter.getEstimatedETHforToken(2673,0x4F96Fe3b7A6Cf9725f59d353F723c1bDb64CA6Aa))[0];
+    //const sendEth = requiredEth * 1.1;
 
-  
-  });
+    //const options = {value: ethers.utils.parseEther(`${sendeth}`)};
+    
+})
+
+
 });
