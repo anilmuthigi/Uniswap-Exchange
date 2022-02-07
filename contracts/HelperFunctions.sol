@@ -73,8 +73,7 @@ contract Helper{
     
         return path;
    }
-
-
+    
    function getPathForEthtoToken(address token) internal view returns (address[] memory) {
         address[] memory path = new address[](2);
         path[0] = UniswapContract.WETH();
@@ -88,6 +87,11 @@ contract Helper{
     function getEstimatedETHforToken(uint Amount, address token) public view returns (uint[] memory) {       
     
         return UniswapContract.getAmountsIn(Amount, getPathForEthtoToken(token));
+    }
+
+    function getEstimatedTokenforToken(uint Amount, address token1,address token2) public view returns (uint[] memory) {       
+    
+        return UniswapContract.getAmountsIn(Amount, getPathForTokentoToken(token1,token2));
     }
 
     function getEstimatedTokenforEth(uint Amount, address token) public view returns (uint[] memory) {       
