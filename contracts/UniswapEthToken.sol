@@ -15,18 +15,24 @@ contract UniswapEthToken is Helper{
     
     function convertEthToToken(
         uint Amount, 
-        address token
+        address token,
+        uint deadline
         ) public payable 
         {
-            uint deadline = block.timestamp + 15;
-            UniswapContract.swapETHForExactTokens{ value: msg.value }(Amount, getPathForEthtoToken(token), address(this), deadline);
+            
+            UniswapContract.swapETHForExactTokens{ value: msg.value }(
+                Amount, 
+                getPathForEthtoToken(token), 
+                msg.sender, 
+                deadline
+                );
 
             // refund leftover ETH to the user
             (bool success,) = msg.sender.call{ value: address(this).balance }("");
             require(success, "refund failed");
         }
   
-    function convertTokensToEth(
+    function convertTokensToToken(
         address token1,
         address token2,
         uint amountIn,
@@ -36,7 +42,7 @@ contract UniswapEthToken is Helper{
     {
         IERC20(token1).transferFrom(msg.sender,address(this),amountIn);
         IERC20(token1).approve(address(UniswapContract),amountIn);
-        UniswapContract.swapExactTokensForETH(
+        UniswapContract.swapExactTokensForTokens(
             amountIn,
             amountOutMin,
             getPathForTokentoToken(token1,token2),
@@ -46,7 +52,7 @@ contract UniswapEthToken is Helper{
         
     }
 
-    function convertTokensToTokens(
+    function convertTokensToEth(
         address token,
         uint amountIn,
         uint amountOutMin,
@@ -55,7 +61,7 @@ contract UniswapEthToken is Helper{
     {
         IERC20(token).transferFrom(msg.sender,address(this),amountIn);
         IERC20(token).approve(address(UniswapContract),amountIn);
-        UniswapContract.swapExactTokensForTokens(
+        UniswapContract.swapExactTokensForETH(
             amountIn,
             amountOutMin,
             getPathForTokentoEth(token),
