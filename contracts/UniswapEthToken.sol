@@ -40,6 +40,7 @@ contract UniswapEthToken is Helper{
         uint deadline
     ) external
     {
+        require(IERC20(token1).balanceOf(msg.sender)>=amountIn,"Not enough tokens to transact");
         IERC20(token1).transferFrom(msg.sender,address(this),amountIn);
         IERC20(token1).approve(address(UniswapContract),amountIn);
 
@@ -67,6 +68,8 @@ contract UniswapEthToken is Helper{
         uint deadline
     ) external
     {
+        require(IERC20(token).balanceOf(msg.sender)>=amountIn,"Not enough tokens to transact");
+
         IERC20(token).transferFrom(msg.sender,address(this),amountIn);
         IERC20(token).approve(address(UniswapContract),amountIn);
         //console.log(msg.sender.balance);
